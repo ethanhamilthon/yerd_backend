@@ -20,7 +20,7 @@ type Word struct {
 	UserID    string    `db:"user_id" json:"user_id"`
 }
 
-type WordAllResponse struct {
+type WordsWithLanguage struct {
 	Language string `json:"language"`
 	Words    []Word `json:"words"`
 }

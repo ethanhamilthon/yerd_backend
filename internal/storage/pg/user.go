@@ -12,14 +12,16 @@ func (repo *Repository) CreateUser(User entities.User) error {
 }
 
 func (repo *Repository) UserByEmail(Email string) (entities.User, error) {
+	query := "SELECT id, name, full_name, email, avatar, language, created_at FROM users WHERE email = $1"
 	var user entities.User
-	err := repo.Get(&user, "SELECT id, name, full_name, email, avatar, language, created_at FROM users WHERE email = $1", Email)
+	err := repo.Get(&user, query, Email)
 	return user, err
 }
 
 func (repo *Repository) Languages(UserID string) ([]entities.Language, error) {
+	query := "SELECT id, user_id, name, created_at FROM languages WHERE user_id = $1"
 	languages := make([]entities.Language, 0)
-	err := repo.Select(&languages, "SELECT id, user_id, name, created_at FROM languages WHERE user_id = $1", UserID)
+	err := repo.Select(&languages, query, UserID)
 	return languages, err
 }
 

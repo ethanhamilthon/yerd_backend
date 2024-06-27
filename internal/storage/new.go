@@ -9,7 +9,7 @@ type Storage struct {
 func New() (*Storage, error) {
 	db, err := pg.New()
 	if err != nil {
-		return &Storage{}, nil
+		return &Storage{}, err
 	}
 	return &Storage{
 		DB: db,

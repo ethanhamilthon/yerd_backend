@@ -13,12 +13,16 @@ type askBody struct {
 }
 
 func (h *Handler) Ask(w http.ResponseWriter, r *http.Request) {
-
-	//Get data from body
+	UserID, _, err := CheckAuth(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	// Get data from body
 	var askparams askBody
 	decoder := json.NewDecoder(r.Body)
 	defer r.Body.Close()
-	err := decoder.Decode(&askparams)
+	err = decoder.Decode(&askparams)
 	if err != nil {
 		http.Error(w, "Incorrect body", http.StatusBadRequest)
 		return
@@ -42,8 +46,9 @@ func (h *Handler) Ask(w http.ResponseWriter, r *http.Request) {
 		flusher.Flush()
 	}
 
-	err = h.s.Ask.GenerateWord(askparams.ID, "", askparams.Oslang, askparams.Tolang, askparams.Word, Writer)
+	err = h.s.Ask.GenerateWord(askparams.ID, UserID, askparams.Oslang, askparams.Tolang, askparams.Word, Writer)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
+	w.WriteHeader(http.StatusAccepted)
 }

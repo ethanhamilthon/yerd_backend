@@ -13,6 +13,7 @@ import (
 	"golang.org/x/oauth2"
 )
 
+// Service for google oauth2, get user and update user languages
 type UserService struct {
 	db DB
 }
@@ -30,13 +31,13 @@ func New(db DB) *UserService {
 }
 
 // Google oauth2 login redirect url
-func (s *UserService) LoginURL() string {
+func (s *UserService) GoogleLoginURL() string {
 	return config.OAuthConfig.AuthCodeURL(config.OAuthState)
 }
 
 // Google oauth2 callback processing
 // state, code => id, email, err
-func (s *UserService) Callback(state string, code string) (string, string, error) {
+func (s *UserService) GoogleCallback(state string, code string) (string, string, error) {
 
 	if state != config.OAuthState {
 		return "", "", errors.New("State does not match")
@@ -45,11 +46,12 @@ func (s *UserService) Callback(state string, code string) (string, string, error
 	if err != nil {
 		return "", "", errors.New("Exchang failed")
 	}
-	userInfo, err := s.getUserInfo(token)
+	userInfo, err := s.getGoogleUserInfo(token)
 	if err != nil {
 		return "", "", err
 	}
 
+	//Parcing fields from interface{} type
 	userEmail, ok := userInfo["email"].(string)
 	if !ok {
 		return "", "", errors.New("Fields parcing failed")
@@ -90,7 +92,7 @@ func (s *UserService) Callback(state string, code string) (string, string, error
 }
 
 // Get info about the user with token by google
-func (s *UserService) getUserInfo(token *oauth2.Token) (map[string]interface{}, error) {
+func (s *UserService) getGoogleUserInfo(token *oauth2.Token) (map[string]interface{}, error) {
 	client := config.OAuthConfig.Client(context.Background(), token)
 
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
@@ -111,11 +113,11 @@ func (s *UserService) getUserInfo(token *oauth2.Token) (map[string]interface{}, 
 func (s *UserService) User(UserID string, Email string) (entities.User, []entities.Language, error) {
 	user, err := s.db.UserByEmail(Email)
 	if err != nil {
-		return entities.User{}, nil, errors.New("Error on getting user")
+		return entities.User{}, nil, errors.New("Error get user")
 	}
 	languages, err := s.db.Languages(UserID)
 	if err != nil {
-		return entities.User{}, nil, errors.New("Error on getting languages")
+		return entities.User{}, nil, errors.New("Error get languages")
 	}
 	return user, languages, nil
 }
@@ -123,7 +125,7 @@ func (s *UserService) User(UserID string, Email string) (entities.User, []entiti
 func (s *UserService) UpdateLanguages(UserLanguage string, TargetLanguages []string, UserID string) error {
 	err := s.db.UpdateUserLanguage(UserLanguage, UserID)
 	if err != nil {
-		return errors.New("Error on updating user language")
+		return errors.New("Error update user language")
 	}
 
 	//Creating new languages
@@ -140,7 +142,7 @@ func (s *UserService) UpdateLanguages(UserLanguage string, TargetLanguages []str
 
 	err = s.db.CreateLanguages(languages)
 	if err != nil {
-		return errors.New("Error on creating target languages")
+		return errors.New("Error create target languages")
 	}
 
 	return nil
