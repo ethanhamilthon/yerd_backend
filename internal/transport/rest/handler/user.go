@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"time"
+	"word/config"
 )
 
 func (h *Handler) GoogleLoginURL(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +27,7 @@ func (h *Handler) GoogleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 	cookie := createCookie(time.Now().Add(24*60*time.Hour), "Authorization", token)
 	http.SetCookie(w, &cookie)
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, config.RedirectUser, http.StatusTemporaryRedirect)
 
 }
 

@@ -10,13 +10,14 @@ import (
 )
 
 var (
-	Mode        string
-	Port        string
-	OAuthConfig oauth2.Config
-	OAuthState  string
-	PgConnStr   string
-	JwtKey      string
-	OpenaiToken string
+	Mode         string
+	Port         string
+	OAuthConfig  oauth2.Config
+	OAuthState   string
+	PgConnStr    string
+	JwtKey       string
+	OpenaiToken  string
+	RedirectUser string
 )
 
 func Load() {
@@ -37,5 +38,5 @@ func Load() {
 	PgConnStr = os.Getenv("PG_CONN_STR")
 	JwtKey = os.Getenv("JWT_KEY")
 	OpenaiToken = os.Getenv("OPENAI_TOKEN")
-
+	RedirectUser = os.Getenv("REDIRECT_USER")
 }
