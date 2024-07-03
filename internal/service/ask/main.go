@@ -32,28 +32,44 @@ func (s *AskService) setTestTrue() {
 	s.isTest = true
 }
 
-func (s *AskService) GenerateWord(ID, UserID, UserLanguage, TargetLanguage, Word string, Writer func(string)) error {
-	result := ""
-	var ResultSteamer = func(SteamText string) {
-		Writer(SteamText)
-		result = result + SteamText
+type Writer struct {
+	result string
+	stream io.Writer
+}
+
+// NewWriter returns new writer with field to final result and another writer to stream text
+func NewWriter(stream io.Writer) *Writer {
+	return &Writer{
+		result: "",
+		stream: stream,
 	}
+}
+
+// Write writes current part of text to final result and writes to another writer
+func (w *Writer) Write(p []byte) (int, error) {
+	w.result = w.result + string(p)
+	n, err := w.stream.Write(p)
+	return n, err
+}
+
+func (s *AskService) GenerateWord(ID, UserID, UserLanguage, TargetLanguage, Word string, Writer io.Writer) error {
+	w := NewWriter(Writer)
 
 	//Generate prompt to openai api from user data
 	user_prompt, system_prompt := promptGenarate(UserLanguage, TargetLanguage, Word)
 
 	//To testing AskService without connection to openai API
 	if !s.isTest {
-		s.runOpenaiAPI(user_prompt, system_prompt, ResultSteamer)
+		s.runOpenaiAPI(user_prompt, system_prompt, w)
 	} else {
-		s.runMockAPI(user_prompt, ResultSteamer)
+		s.runMockAPI(user_prompt, w)
 	}
 
 	word := entities.Word{
 		WordBasic: entities.WordBasic{
 			ID:           ID,
 			Title:        Word,
-			Description:  result,
+			Description:  w.result,
 			FromLanguage: UserLanguage,
 			ToLanguage:   TargetLanguage,
 			Type:         "ai",
@@ -75,7 +91,7 @@ func (s *AskService) generatePrompt(UserLanguage, TargetLanguage, Word string) (
 	return "", nil
 }
 
-func (s *AskService) runOpenaiAPI(UserPrompt, SystemPrompt string, ResultSteamer func(string)) {
+func (s *AskService) runOpenaiAPI(UserPrompt, SystemPrompt string, w io.Writer) {
 	ctx := context.Background()
 	req := openai.ChatCompletionRequest{
 		Model: openai.GPT3Dot5Turbo,
@@ -108,12 +124,16 @@ func (s *AskService) runOpenaiAPI(UserPrompt, SystemPrompt string, ResultSteamer
 		if err != nil {
 			return
 		}
-		ResultSteamer(response.Choices[0].Delta.Content)
+
+		_, err = w.Write([]byte(response.Choices[0].Delta.Content))
+		if err != nil {
+			return
+		}
 	}
 }
 
 // mock function to testing
-func (s *AskService) runMockAPI(prompt string, ResultSteamer func(string)) {
+func (s *AskService) runMockAPI(prompt string, w io.Writer) {
 	words := strings.Fields(`"Quite" в английском языке означает "довольно", "вполне" или "совсем".
 	Это слово используется для усиления прилагательных и наречий, указывая на степень чего-либо.
 
@@ -129,7 +149,10 @@ func (s *AskService) runMockAPI(prompt string, ResultSteamer func(string)) {
 	На улице довольно холодно.
 	Здесь "quite" подчеркивает, что температура заметно низкая.`)
 	for _, word := range words {
-		ResultSteamer(word + " ")
+		_, err := w.Write([]byte(word + " "))
+		if err != nil {
+			break
+		}
 		time.Sleep(50 * time.Millisecond)
 	}
 }

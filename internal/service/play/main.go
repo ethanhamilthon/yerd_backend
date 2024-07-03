@@ -18,13 +18,14 @@ func New(db DB) *PlayService {
 	return &PlayService{db}
 }
 
+// GeneratePlay generates a array of random word to play, repeat
 func (s *PlayService) GeneratePlay(UserID string, count int, language string) ([]entities.Word, error) {
 	words, err := s.db.Words(UserID)
 	if err != nil {
 		return nil, errors.New("Error get users")
 	}
 
-	//Get all words those has the arg language
+	//Get only the words, those match with users language
 	words_match_language := make([]entities.Word, 0)
 	for _, word := range words {
 		if word.ToLanguage == language {
@@ -41,6 +42,7 @@ func (s *PlayService) GeneratePlay(UserID string, count int, language string) ([
 	return getPlayWords(words_match_language, count), nil
 }
 
+// getPlayWords returns a new list of random words with ratio 7/3/2 (7 new words, 3 old words, 2 very old words)
 func getPlayWords(from []entities.Word, count int) []entities.Word {
 	to := make([]entities.Word, 0, count)
 	newWords, mediumWords, oldWords := splitSlice(from)
@@ -57,6 +59,7 @@ func getPlayWords(from []entities.Word, count int) []entities.Word {
 	return to
 }
 
+// selectRandomElements writes n random element from first array to second array
 func selectRandomElements(from []entities.Word, to *[]entities.Word, count int) {
 	if count > len(from) {
 		count = len(from)
@@ -70,6 +73,7 @@ func selectRandomElements(from []entities.Word, to *[]entities.Word, count int) 
 
 }
 
+// splitSlice splits main array to 3 new small arrays with ratio 7/3/2
 func splitSlice[T any](original []T) ([]T, []T, []T) {
 	totalLength := len(original)
 	ratio1, ratio2, ratio3 := 7, 3, 2

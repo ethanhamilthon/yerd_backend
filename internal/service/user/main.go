@@ -30,13 +30,12 @@ func New(db DB) *UserService {
 	return &UserService{db}
 }
 
-// Google oauth2 login redirect url
+// GoogleLoginURL returns url to redirect
 func (s *UserService) GoogleLoginURL() string {
 	return config.OAuthConfig.AuthCodeURL(config.OAuthState)
 }
 
-// Google oauth2 callback processing
-// state, code => id, email, err
+// GoogleCallback return info about user (ID, Email) from state and code
 func (s *UserService) GoogleCallback(state string, code string) (string, string, error) {
 
 	if state != config.OAuthState {
@@ -91,7 +90,7 @@ func (s *UserService) GoogleCallback(state string, code string) (string, string,
 	return user.ID, user.Email, nil
 }
 
-// Get info about the user with token by google
+// getGoogleUserInfo returns map of info about user
 func (s *UserService) getGoogleUserInfo(token *oauth2.Token) (map[string]interface{}, error) {
 	client := config.OAuthConfig.Client(context.Background(), token)
 
@@ -110,6 +109,7 @@ func (s *UserService) getGoogleUserInfo(token *oauth2.Token) (map[string]interfa
 	return userInfo, nil
 }
 
+// User returns data about user and his languages
 func (s *UserService) User(UserID string, Email string) (entities.User, []entities.Language, error) {
 	user, err := s.db.UserByEmail(Email)
 	if err != nil {
@@ -122,6 +122,7 @@ func (s *UserService) User(UserID string, Email string) (entities.User, []entiti
 	return user, languages, nil
 }
 
+// UpdateLanguages updates users system language and the learning languages
 func (s *UserService) UpdateLanguages(UserLanguage string, TargetLanguages []string, UserID string) error {
 	err := s.db.UpdateUserLanguage(UserLanguage, UserID)
 	if err != nil {

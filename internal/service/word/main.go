@@ -6,7 +6,6 @@ import (
 	"word/internal/entities"
 )
 
-// Service to create manually, get, get many, update, delete words
 type WordService struct {
 	db DB
 }
@@ -24,6 +23,7 @@ func New(db DB) *WordService {
 	return &WordService{db}
 }
 
+// UserWords returns all words those the user has, and splits them by language
 func (s *WordService) UserWords(UserID string) ([]entities.WordsWithLanguage, error) {
 	languages, err := s.db.Languages(UserID)
 	if err != nil {
@@ -51,6 +51,7 @@ func (s *WordService) UserWords(UserID string) ([]entities.WordsWithLanguage, er
 	return languagedWords, nil
 }
 
+// CreateManualWord creates a new word in storage
 func (s *WordService) CreateManualWord(WordFromUser entities.WordBasic, UserID string) error {
 	word := entities.Word{
 		CreatedAt: time.Now(),

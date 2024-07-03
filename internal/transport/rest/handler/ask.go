@@ -12,6 +12,24 @@ type askBody struct {
 	Word   string `json:"word"`
 }
 
+type FlushWriter struct {
+	flush http.Flusher
+	wHttp http.ResponseWriter
+}
+
+func NewWriter(flush http.Flusher, wHttp http.ResponseWriter) *FlushWriter {
+	return &FlushWriter{
+		flush: flush,
+		wHttp: wHttp,
+	}
+}
+
+func (w *FlushWriter) Write(p []byte) (int, error) {
+	n, err := w.wHttp.Write(p)
+	w.flush.Flush()
+	return n, err
+}
+
 func (h *Handler) Ask(w http.ResponseWriter, r *http.Request) {
 	UserID, _, err := CheckAuth(r)
 	if err != nil {
@@ -41,10 +59,7 @@ func (h *Handler) Ask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//Create Writer function
-	var Writer = func(StreamText string) {
-		w.Write([]byte(StreamText))
-		flusher.Flush()
-	}
+	Writer := NewWriter(flusher, w)
 
 	err = h.s.Ask.GenerateWord(askparams.ID, UserID, askparams.Oslang, askparams.Tolang, askparams.Word, Writer)
 	if err != nil {

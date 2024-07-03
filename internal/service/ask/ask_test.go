@@ -1,12 +1,29 @@
 package ask
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 	"word/internal/entities"
 )
 
-// First test start:
+type TestWriter struct {
+	count int
+}
+
+// NewTestWriter returns a new writer
+func NewTestWriter() *TestWriter {
+	return &TestWriter{
+		count: 0,
+	}
+}
+
+// Write writes count of write
+func (w *TestWriter) Write(p []byte) (int, error) {
+	w.count = w.count + 1
+	return 0, nil
+}
+
 var answer = `"Quite" в английском языке означает "довольно", "вполне" или "совсем".
 Это слово используется для усиления прилагательных и наречий, указывая на степень чего-либо.
 
@@ -29,30 +46,25 @@ func TestAsk(t *testing.T) {
 	service := New(db)
 	service.setTestTrue()
 
-	//Setting data
-	count := 0
-	var Writer = func(StreamText string) {
-		count = count + 1
-	}
-
 	ID := "some_id"
 	UserID := "some_user_id"
 	UserLanguage := "russian"
 	TargetLanguage := "english"
 	Word := "quit"
 
-	//Call the main function
-	err := service.GenerateWord(ID, UserID, UserLanguage, TargetLanguage, Word, Writer)
+	w := NewTestWriter()
 
-	//not expected error
+	err := service.GenerateWord(ID, UserID, UserLanguage, TargetLanguage, Word, w)
+
 	if err != nil {
 		t.Errorf("Ask: expected: nil, got:%v", err.Error())
 	}
 
 	//counter count (count has to be incremented at least 10 times)
-	if count <= 10 {
-		t.Errorf("Ask: expected: >10, got:%v", count)
+	if w.count <= 10 {
+		t.Errorf("Ask: expected: >10, got:%v", w.count)
 	}
+	fmt.Println(db.word.Description)
 
 	//Check the datas
 	if db.word.ID != ID {
@@ -88,9 +100,6 @@ func (db *MockDB) CreateWord(Word entities.Word) error {
 	return nil
 }
 
-//Fisrt test end
-
-// Second test start
 var expected_user_prompt = `Explain to me what "something" means in English (if it is another language then translate to English). First explain in general what this word/phrase means.
 Then make 3 sentences in English, and a translation in Russian. And explain exactly in the context of each sentence.
 Write what it means in more detail, and in the examples should be 3 points, number each example,
@@ -107,10 +116,8 @@ func TestPromptGenerator(t *testing.T) {
 		t.Errorf("PromptGenarate: expected: %v, got: %v", expected_user_prompt, user_prompt)
 	}
 
-	expected_system_prompt := "YOU HAVE TO ANSWER ONLY IN RUSSIAN"
+	expected_system_prompt := "YOU HAVE TO ANSWER ONLY IN RUSSIAN, I SPEAK ONLY RUSSIAN"
 	if system_prompt != expected_system_prompt {
 		t.Errorf("PromptGenarate: expected: %v, got: %v", expected_system_prompt, system_prompt)
 	}
 }
-
-//Second test end
