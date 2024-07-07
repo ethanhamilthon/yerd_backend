@@ -30,7 +30,7 @@ func (h *Handler) Handle() *http.ServeMux {
 	apiv1.HandleFunc("/play", middl(h.Play))
 	apiv1.HandleFunc("POST /ask", h.Ask)
 	apiv1.HandleFunc("/me", middl(h.Me))
-	apiv1.HandleFunc("/metrics/visits", middl(h.Visits))
+	apiv1.HandleFunc("/metrics/visits", h.Visits)
 	handlers.Handle("/api/v1/", http.StripPrefix("/api/v1", apiv1))
 
 	//Define oauth2 routes

@@ -116,7 +116,7 @@ func TestPromptGenerator(t *testing.T) {
 		t.Errorf("PromptGenarate: expected: %v, got: %v", expected_user_prompt, user_prompt)
 	}
 
-	expected_system_prompt := "YOU HAVE TO ANSWER ONLY IN RUSSIAN, I SPEAK ONLY RUSSIAN"
+	expected_system_prompt := "You have to answer only in Russian"
 	if system_prompt != expected_system_prompt {
 		t.Errorf("PromptGenarate: expected: %v, got: %v", expected_system_prompt, system_prompt)
 	}

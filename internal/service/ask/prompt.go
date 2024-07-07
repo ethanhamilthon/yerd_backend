@@ -24,9 +24,9 @@ func putWord(Text string, Word string) string {
 
 // getSystemPrompt returns system prompt, which is important to explain to the openai api output language
 func getSystemPrompt(UserLanguage string) string {
-	text := "YOU HAVE TO ANSWER ONLY IN [[]], I SPEAK ONLY [[]]"
+	text := "You have to answer only in [[]]"
 	regex := regexp.MustCompile(`\[\[.*?\]\]`)
-	return regex.ReplaceAllString(text, strings.ToUpper(UserLanguage))
+	return regex.ReplaceAllString(text, сapitalize(UserLanguage))
 }
 
 // putUserLanguage puts the users language to prompt
