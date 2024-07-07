@@ -1,13 +1,15 @@
 package storage
 
-import "word/internal/storage/pg"
+import (
+	"word/internal/storage/sqlite"
+)
 
 type Storage struct {
-	DB *pg.Repository
+	DB *sqlite.Repository
 }
 
 func New() (*Storage, error) {
-	db, err := pg.New()
+	db, err := sqlite.New()
 	if err != nil {
 		return &Storage{}, err
 	}

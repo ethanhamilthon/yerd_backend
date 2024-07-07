@@ -58,5 +58,4 @@ func (s *RestServer) Serve() {
 			log.Fatalf("Server shutdown failed: %v", err)
 		}
 	}
-
 }

@@ -1,2 +1,8 @@
 .env
 .TODO
+
+#db files
+
+.db
+log.db
+main.db

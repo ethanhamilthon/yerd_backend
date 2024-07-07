@@ -73,14 +73,16 @@ func (s *WordService) CreateManualWord(WordFromUser entities.WordBasic, UserID s
 	return nil
 }
 
+// Word return existing word by ID
 func (s *WordService) Word(ID string) (entities.Word, error) {
 	word, err := s.db.Word(ID)
 	if err != nil {
-		return word, errors.New("Error create word")
+		return word, errors.New("Error get word")
 	}
 	return word, nil
 }
 
+// DeleteWord removes word by ID ans UserID
 func (s *WordService) DeleteWord(ID string, UserID string) error {
 	err := s.db.DeleteWord(ID, UserID)
 	if err != nil {
@@ -89,6 +91,7 @@ func (s *WordService) DeleteWord(ID string, UserID string) error {
 	return nil
 }
 
+// UpdateWord updates existing word by ID and UserID
 func (s *WordService) UpdateWord(ID, Title, Description, UserID string) error {
 	now := time.Now()
 	err := s.db.UpdateWord(ID, Title, Description, UserID, now)

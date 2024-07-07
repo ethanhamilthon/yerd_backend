@@ -24,6 +24,6 @@ func (h *Handler) Play(w http.ResponseWriter, r *http.Request) {
 		"count": len(words),
 		"words": words,
 	}
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(res)
 }

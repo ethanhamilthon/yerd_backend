@@ -10,14 +10,18 @@ import (
 )
 
 var (
-	Mode         string
-	Port         string
-	OAuthConfig  oauth2.Config
-	OAuthState   string
-	PgConnStr    string
-	JwtKey       string
-	OpenaiToken  string
-	RedirectUser string
+	Mode           string
+	Port           string
+	OAuthConfig    oauth2.Config
+	OAuthState     string
+	PgConnStr      string
+	JwtKey         string
+	OpenaiToken    string
+	RedirectUser   string
+	SQLiteMainPath string
+	SQLiteLogPath  string
+	AdminLogin     string
+	AdminPass      string
 )
 
 func Load() {
@@ -39,4 +43,8 @@ func Load() {
 	JwtKey = os.Getenv("JWT_KEY")
 	OpenaiToken = os.Getenv("OPENAI_TOKEN")
 	RedirectUser = os.Getenv("REDIRECT_USER")
+	SQLiteMainPath = os.Getenv("SQLITE_MAIN")
+	SQLiteLogPath = os.Getenv("SQLITE_LOG")
+	AdminLogin = os.Getenv("ADMIN_LOGIN")
+	AdminPass = os.Getenv("ADMIN_PASSWORD")
 }

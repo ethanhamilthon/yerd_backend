@@ -2,7 +2,6 @@ package pg
 
 import (
 	"word/config"
-	"word/internal/entities"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -27,6 +26,6 @@ func New() (*Repository, error) {
 	}, nil
 }
 
-func (repo *Repository) GetWordByID(ID string) (entities.Word, error) {
-	return entities.Word{}, nil
+func (repo *Repository) Close() {
+	repo.DB.Close()
 }

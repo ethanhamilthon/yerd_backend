@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"word/config"
 	"word/internal/service"
 	"word/internal/storage"
@@ -14,6 +15,7 @@ func main() {
 	//Connect DB
 	store, err := storage.New()
 	if err != nil {
+		log.Println(err.Error())
 		panic("Panic: storage is not created")
 	}
 	defer store.CloseConnections()

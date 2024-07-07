@@ -46,7 +46,7 @@ func (h *Handler) Me(w http.ResponseWriter, r *http.Request) {
 		"user":      user,
 		"languages": languages,
 	}
-	w.WriteHeader(http.StatusAccepted)
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }
