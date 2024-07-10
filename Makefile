@@ -1,8 +1,8 @@
 run: build
-	./build/word
+	./build/yerd
 
 build: clean
-	go build -o ./build/word cmd/main.go
+	go build -o ./build/yerd cmd/main.go
 
 clean:
-	rm -f ./build/word
+	rm -f ./build/yerd

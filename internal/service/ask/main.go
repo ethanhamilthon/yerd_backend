@@ -56,13 +56,13 @@ func (s *AskService) GenerateWord(ID, UserID, UserLanguage, TargetLanguage, Word
 	w := NewWriter(Writer)
 
 	//Generate prompt to openai api from user data
-	user_prompt, system_prompt := promptGenarate(UserLanguage, TargetLanguage, Word)
+	user_prompt := promptGenarate(UserLanguage, TargetLanguage, Word)
 
 	//To testing AskService without connection to openai API
 	if !s.isTest {
-		s.runOpenaiAPI(user_prompt, system_prompt, w)
+		s.runOpenaiAPI(user_prompt, w)
 	} else {
-		s.runMockAPI(user_prompt, w)
+		s.runMockAPI(w)
 	}
 
 	word := entities.Word{
@@ -81,25 +81,17 @@ func (s *AskService) GenerateWord(ID, UserID, UserLanguage, TargetLanguage, Word
 
 	err := s.db.CreateWord(word)
 	if err != nil {
-		return errors.New("Error create word")
+		return errors.New("error create word")
 	}
 
 	return nil
 }
 
-func (s *AskService) generatePrompt(UserLanguage, TargetLanguage, Word string) (string, error) {
-	return "", nil
-}
-
-func (s *AskService) runOpenaiAPI(UserPrompt, SystemPrompt string, w io.Writer) {
+func (s *AskService) runOpenaiAPI(UserPrompt string, w io.Writer) {
 	ctx := context.Background()
 	req := openai.ChatCompletionRequest{
 		Model: openai.GPT3Dot5Turbo,
 		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: SystemPrompt,
-			},
 			{
 				Role:    openai.ChatMessageRoleUser,
 				Content: UserPrompt,
@@ -133,7 +125,7 @@ func (s *AskService) runOpenaiAPI(UserPrompt, SystemPrompt string, w io.Writer) 
 }
 
 // mock function to testing
-func (s *AskService) runMockAPI(prompt string, w io.Writer) {
+func (s *AskService) runMockAPI(w io.Writer) {
 	words := strings.Fields(`"Quite" в английском языке означает "довольно", "вполне" или "совсем".
 	Это слово используется для усиления прилагательных и наречий, указывая на степень чего-либо.
 

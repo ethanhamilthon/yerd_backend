@@ -1,7 +1,6 @@
 package ask
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 	"word/internal/entities"
@@ -64,7 +63,6 @@ func TestAsk(t *testing.T) {
 	if w.count <= 10 {
 		t.Errorf("Ask: expected: >10, got:%v", w.count)
 	}
-	fmt.Println(db.word.Description)
 
 	//Check the datas
 	if db.word.ID != ID {
@@ -100,24 +98,16 @@ func (db *MockDB) CreateWord(Word entities.Word) error {
 	return nil
 }
 
-var expected_user_prompt = `Explain to me what "something" means in English (if it is another language then translate to English). First explain in general what this word/phrase means.
-Then make 3 sentences in English, and a translation in Russian. And explain exactly in the context of each sentence.
-Write what it means in more detail, and in the examples should be 3 points, number each example,
-but not the sentence itself: the sentence in English, its translation,
-what the word/phrase "something" means in this context. The answer is needed without Markdown markup.`
+var expected_user_prompt = `Объясните мне, что означает "something" на английском языке (если это другой язык, то переведите на английский). Сначала объясните в общих чертах, что означает это слово/фраза. Затем составьте 3 предложения на английском языке и перевод на русский. И объясните точно в контексте каждого предложения. Ответ нужен без разметки Markdown.`
 
 func TestPromptGenerator(t *testing.T) {
 	Word := "something"
 	UserLanguage := "russian"
 	TargetLanguage := "english"
 
-	user_prompt, system_prompt := promptGenarate(UserLanguage, TargetLanguage, Word)
+	user_prompt := promptGenarate(UserLanguage, TargetLanguage, Word)
 	if user_prompt != expected_user_prompt {
 		t.Errorf("PromptGenarate: expected: %v, got: %v", expected_user_prompt, user_prompt)
 	}
 
-	expected_system_prompt := "You have to answer only in Russian"
-	if system_prompt != expected_system_prompt {
-		t.Errorf("PromptGenarate: expected: %v, got: %v", expected_system_prompt, system_prompt)
-	}
 }
